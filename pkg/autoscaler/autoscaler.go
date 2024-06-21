@@ -1,13 +1,13 @@
 package autoscaler
 
 import (
-	"auto-scaler/api/v1/model"
-	c "auto-scaler/pkg/config"
-	"auto-scaler/pkg/rest"
-	"auto-scaler/pkg/util"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/suyog1pathak/autoscaler/api/v1/model"
+	c "github.com/suyog1pathak/autoscaler/pkg/config"
+	"github.com/suyog1pathak/autoscaler/pkg/rest"
+	"github.com/suyog1pathak/autoscaler/pkg/util"
 	"log/slog"
 	"math"
 	"net/http"
@@ -15,15 +15,20 @@ import (
 	"time"
 )
 
-var log *slog.Logger
-var config *c.AppConfig
-var downscaleReqCount int = 0
+var log *slog.Logger          // Logger instance for logging application events.
+var config *c.AppConfig       // AppConfig instance holding configuration settings.
+var downscaleReqCount int = 0 // Counter for tracking consecutive downscale requests.
 
+// Start initializes the auto-scaler and begins monitoring and adjusting replicas.
 func Start() {
+	// Initialize logger with JSON format for structured logging.
 	log = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	// Retrieve application configuration.
 	config = c.GetConfig()
+	// Adjust logger with configured log level.
 	log = slog.New(slog.NewJSONHandler(os.Stdout, util.LogLevelHandler(config.LogLevel)))
-	log.Info("starting auto-scaler", "upstream", config.StatusEndpoint, "targetCpu", config.TargetCPU, "polling", config.PollInterval.Seconds(), "loglevel", config.LogLevel)
+	log.Info("starting autoscaler", "upstream", config.StatusEndpoint, "targetCpu", config.TargetCPU, "polling", config.PollInterval.Seconds(), "loglevel", config.LogLevel)
+	// Start main loop for monitoring and adjusting replicas.
 	for {
 		// Fetch the current status
 		status, err := getStatus()
@@ -53,6 +58,7 @@ func Start() {
 	}
 }
 
+// getStatus retrieves the current status of the application from the upstream service.
 func getStatus() (*model.StatusResponse, error) {
 	//log.Info("getting status for current pods and cpu")
 	r, responseBody, err := rest.Client(http.MethodGet, config.StatusEndpoint, map[string]string{"Accept": "application/json"}, []byte(""), config.ApiTimeOut)
@@ -73,6 +79,7 @@ func getStatus() (*model.StatusResponse, error) {
 	return &status, nil
 }
 
+// calculateNewReplicas computes the new number of replicas based on current CPU utilization.
 func calculateNewReplicas(currentCPU float64, currentReplicas int) int {
 	if currentCPU > config.TargetCPU {
 		log.Debug("current cpu utilization is more then threshold, adding more replicas")
@@ -90,6 +97,7 @@ func calculateNewReplicas(currentCPU float64, currentReplicas int) int {
 	}
 }
 
+// updateReplicas sends a request to update the number of replicas to the upstream service.
 func updateReplicas(newReplicas int) error {
 	log.Info("updating new replica count", "count", newReplicas)
 	headers := map[string]string{

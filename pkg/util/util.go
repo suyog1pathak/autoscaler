@@ -5,6 +5,7 @@ import (
 	"log/slog"
 )
 
+// ToJson converts a JSON byte slice into a map[string]interface{}.
 func ToJson(data []byte) map[string]interface{} {
 	// Unmarshal JSON into a generic map
 	var responseMap map[string]interface{}
@@ -12,6 +13,7 @@ func ToJson(data []byte) map[string]interface{} {
 	return responseMap
 }
 
+// LogLevelHandler returns a slog.HandlerOptions pointer based on the provided log level string.
 func LogLevelHandler(level string) *slog.HandlerOptions {
 	var hOptions slog.HandlerOptions
 	switch level {
