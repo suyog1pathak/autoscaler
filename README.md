@@ -23,7 +23,7 @@ AutoScaler is an application that dynamically adjusts the number of replicas bas
 | DownscaleAfterAttempts   | `APP_DOWNSCALEAFTERATTEMPTS`   | `3`                                    | DownscaleAfterAttempts specifies the number of retry attempts after which the system initiates downscaling of resources.   |
 
 
-## Main logic for Autoscaling
+## Main logic.
 This section describes the logic for dynamically adjusting the number of replicas in response to CPU utilization.
 #### Scaling Up:
 When the current CPU utilization exceeds the target CPU utilization, the system increases the number of replicas to handle the higher load. 
