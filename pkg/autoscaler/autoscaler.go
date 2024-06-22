@@ -28,7 +28,7 @@ func Start() {
 	// Adjust logger with configured log level.
 	log = slog.New(slog.NewJSONHandler(os.Stdout, util.LogLevelHandler(config.LogLevel)))
 	// Log startup information.
-	log.Info("Auto-scaler started", "upstream", config.StatusEndpoint, "targetCpu", config.TargetCPU, "pollingInterval", config.PollInterval.Seconds(), "logLevel", config.LogLevel)
+	log.Info("Auto-scaler started", "upstream", config.StatusEndpoint, "targetCpu", config.TargetCPU, "pollingInterval", config.PollInterval.Seconds(), "logLevel", config.LogLevel, "api_timeout", config.ApiTimeOut.Seconds())
 	// Start main loop for monitoring and adjusting replicas.
 	for {
 		// Fetch current application status.
@@ -41,7 +41,9 @@ func Start() {
 
 		// Calculate new number of replicas.
 		newReplicas := calculateNewReplicas(status.CPU.HighPriority, status.Replicas, config.DownscaleAfterAttempts)
-
+		if newReplicas <= 0 {
+			newReplicas = 1
+		}
 		if newReplicas != status.Replicas {
 			err = updateReplicas(newReplicas)
 			// Log successful replica update.
