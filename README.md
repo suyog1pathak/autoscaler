@@ -51,6 +51,30 @@ newReplicas=floor(⌈currentReplicas×(currentCPU/TargetCPU)])
 
 This project uses a `Makefile` to manage common tasks such as building, running, and pushing the application. Below are the commands you can use with `make` to perform these tasks.
 
+
+## Unit test
+```
+❯  go clean -i -cache && go test -v  ./...                                                                                                                                                                                           ─╯
+?       github.com/suyog1pathak/autoscaler/api/v1/model [no test files]
+?       github.com/suyog1pathak/autoscaler/cmd  [no test files]
+?       github.com/suyog1pathak/autoscaler/pkg/config   [no test files]
+?       github.com/suyog1pathak/autoscaler/pkg/util     [no test files]
+=== RUN   TestCalculateNewReplicas
+--- PASS: TestCalculateNewReplicas (0.00s)
+PASS
+ok      github.com/suyog1pathak/autoscaler/pkg/autoscaler       1.624s
+=== RUN   TestClient
+=== RUN   TestClient/GET_/test
+=== RUN   TestClient/POST_/test
+--- PASS: TestClient (0.02s)
+    --- PASS: TestClient/GET_/test (0.02s)
+    --- PASS: TestClient/POST_/test (0.00s)
+PASS
+ok      github.com/suyog1pathak/autoscaler/pkg/rest     1.456s
+
+```
+
+
 ### Prerequisites
 
 Ensure you have the following installed on your system:
@@ -83,7 +107,7 @@ make docker-build artifactURL=my-repo/my-service TAG=v1.0.0
 This command pushes the Docker image to the specified repository. Ensure you have the necessary permissions to push to the repository.
 `default: services:latest`
 ```
-docker push artifactURL=my-repo/my-service TAG=v1.0.0
+make docker-push artifactURL=my-repo/my-service TAG=v1.0.0
 ```
 
 
